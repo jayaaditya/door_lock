@@ -1,6 +1,6 @@
 from smartcard.CardMonitoring import CardMonitor, CardObserver
-#import getDetails
 import time
+import datetime
 import signal
 
 #SELECT = [0x00, 0xA4, 0x00, 0x00, 0x02, 0x3F, 0x05]
@@ -11,7 +11,7 @@ class getDetails(object):
 	"""docstring for getDetails"""
 	def __init__(self, connection):
 		self.SELECT = [0x00, 0xA4, 0x00, 0x00, 0x02, 0x3F, 0x05]
-		self.READ_BINARY = [0x00, 0xB0, 0x00, 0x00, 0xC0]
+		self.READ_BINARY = [0x00, 0xB0, 0x00, 0x00, 0xE8]
 		self.data = self.send(self.SELECT, self.READ_BINARY, connection)
 		#print self.data
 
@@ -71,7 +71,7 @@ class getDetails(object):
   	def getBranch(self):
   		return self.format(self.data.index(207))
 
-  	def getDateCreation(self):
+  	def getExpiryDate(self):
   		info = self.format(self.data.index(218))
   		year = int(info[0:4])
   		month = int(info[4:6])
@@ -102,6 +102,26 @@ def check_roll(in_roll, list_roll):
     else:
         return False
 
+def check_date(day, month, year):
+	now = datetime.datetime.now()
+	sysyear = int(now.year)
+	sysmonth = int(now.month)
+	sysday = int(now.day)
+	if year > sysyear:
+		return True
+	elif year == sysyear:
+		if month > sysmonth:
+			return True
+		elif month == sysmonth:
+			if day >= sysday:
+				return True
+			else :
+				return False
+		else :
+			return False
+	else :
+		return False
+
 class Card_Read(CardObserver):
     """docstring for Card_Read"""
     def update(self, observable, (addedcards, removedcards)):
@@ -116,10 +136,15 @@ class Card_Read(CardObserver):
             print rollno
             name = gdetails.getName()
             print name
+            year, month, day =gdetails.getExpiryDate()	
+            #print gdetails.getDOB()
+            #print gdetails.getNationalityCode()
+            #print gdetails.getGender()
+            #print gdetails.getPrintDate()
             roll_list = get_rollnos("Roll_list.txt")
             #fingerprint_read(connection)
             #eadEF5(connection)
-            if check_roll(rollno, roll_list):
+            if check_roll(rollno, roll_list) and check_date(day, month, year):
                 create_log("Entry_log.txt", rollno, name)
                 print "Access Granted"
                 time.sleep(2)
