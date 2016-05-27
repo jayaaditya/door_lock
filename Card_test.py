@@ -1,3 +1,4 @@
+import os
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 import RPi.GPIO as GPIO
 import time
@@ -38,12 +39,15 @@ class getDetails(object):
 	def getName(self):
 		#print "Running getName"
 		nlist = []
-		tag_index = self.data.index(194)
-		nlist.append(self.format(tag_index))
-		tag_index = self.data.index(195)
-		nlist.append(self.format(tag_index))
-		tag_index = self.data.index(193)
-		nlist.append(self.format(tag_index))
+		if 194 in self.data:
+			tag_index = self.data.index(194)
+			nlist.append(self.format(tag_index))
+		if 195 in self.data:
+			tag_index = self.data.index(195)
+			nlist.append(self.format(tag_index))
+		if 193 in self.data:
+			tag_index = self.data.index(193)
+			nlist.append(self.format(tag_index))
 		name = " ".join(nlist)
 		return name
 	
@@ -147,19 +151,21 @@ class Card_Read(CardObserver):
             #eadEF5(connection)
             if check_roll(rollno, roll_list) and check_date(day, month, year):
                 create_log("Entry_log.txt", rollno, name)
-                GPIO.output(16,HIGH)
+                GPIO.output(16,GPIO.LOW)
+		os.system("echo 1 | sudo tee /sys/class/leds/led0/brightness")
                 print "Access Granted"
                 time.sleep(5)
-                GPIO.output(16,LOW)
+                GPIO.output(16,GPIO.HIGH)
+		os.system("echo 0 | sudo tee /sys/class/leds/led0/brightness")
                 print "Access Closed"
             else:
                 create_log("No_entry log.txt", rollno, name)
                 print "Access Denied"
 
 # print "Script is active"
-GPIO.setup(GPIO.BCM)
-GPIO.setmode(16,OUT)
-GPIO.output(16,LOW)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(16,GPIO.OUT)
+GPIO.output(16,GPIO.HIGH)
 MONITOR = CardMonitor()
 OBSERVER = Card_Read()
 MONITOR.addObserver(OBSERVER)
