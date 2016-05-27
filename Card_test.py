@@ -1,4 +1,5 @@
 from smartcard.CardMonitoring import CardMonitor, CardObserver
+import RPi.GPIO as GPIO
 import time
 import datetime
 import signal
@@ -146,14 +147,19 @@ class Card_Read(CardObserver):
             #eadEF5(connection)
             if check_roll(rollno, roll_list) and check_date(day, month, year):
                 create_log("Entry_log.txt", rollno, name)
+                GPIO.output(16,HIGH)
                 print "Access Granted"
-                time.sleep(2)
+                time.sleep(5)
+                GPIO.output(16,LOW)
                 print "Access Closed"
             else:
                 create_log("No_entry log.txt", rollno, name)
                 print "Access Denied"
 
 # print "Script is active"
+GPIO.setup(GPIO.BCM)
+GPIO.setmode(16,OUT)
+GPIO.output(16,LOW)
 MONITOR = CardMonitor()
 OBSERVER = Card_Read()
 MONITOR.addObserver(OBSERVER)
