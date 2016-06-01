@@ -41,19 +41,19 @@ class getDetails(object):
 		nlist = []
 		try:
 			tag_index = self.data.index(194)
-      nlist.append(self.format(tag_index))
-    except ValueError:
-      pass
+            nlist.append(self.format(tag_index))
+        except ValueError:
+            pass
 		try:
 			tag_index = self.data.index(195)
 			nlist.append(self.format(tag_index))
-    except ValueError:
-      pass
+        except ValueError:
+            pass
 		try:
 			tag_index = self.data.index(193)
 			nlist.append(self.format(tag_index))
-    except ValueError:
-      pass
+        except ValueError:
+            pass
 		name = " ".join(nlist)
 		return name
 	
