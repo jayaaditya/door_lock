@@ -39,15 +39,21 @@ class getDetails(object):
 	def getName(self):
 		#print "Running getName"
 		nlist = []
-		if 194 in self.data:
+		try:
 			tag_index = self.data.index(194)
-			nlist.append(self.format(tag_index))
-		if 195 in self.data:
+      nlist.append(self.format(tag_index))
+    except ValueError:
+      pass
+		try:
 			tag_index = self.data.index(195)
 			nlist.append(self.format(tag_index))
-		if 193 in self.data:
+    except ValueError:
+      pass
+		try:
 			tag_index = self.data.index(193)
 			nlist.append(self.format(tag_index))
+    except ValueError:
+      pass
 		name = " ".join(nlist)
 		return name
 	
